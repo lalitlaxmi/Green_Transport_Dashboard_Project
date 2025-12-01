@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Transport Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #10b981;
+            --dark-green: #059669;
+            --light-green: #d1fae5;
+            --bg-light: #f0fdf4;
+            --bg-dark: #1a1a1a;
+            --text-dark: #1f2937;
+            --text-light: #ffffff;
+            --shadow: rgba(16, 185, 129, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(135deg, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+                linear-gradient(45deg, rgba(5, 150, 105, 0.02) 0%, transparent 50%);
+            background-size: 100% 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 10%;
+            right: 5%;
+            width: 300px;
+            height: 200px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect x="80" y="50" width="100" height="200" fill="%23ef4444" opacity="0.15" rx="8"/><rect x="220" y="180" width="100" height="70" fill="%2310b981" opacity="0.15" rx="8"/><text x="130" y="270" font-family="Arial" font-size="14" fill="%236b7280" opacity="0.3" text-anchor="middle">Vehicle</text><text x="270" y="270" font-family="Arial" font-size="14" fill="%236b7280" opacity="0.3" text-anchor="middle">Green</text><line x1="60" y1="250" x2="360" y2="250" stroke="%239ca3af" opacity="0.2" stroke-width="2"/><line x1="60" y1="50" x2="60" y2="250" stroke="%239ca3af" opacity="0.2" stroke-width="2"/></svg>') no-repeat;
+            background-size: contain;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatChart 6s ease-in-out infinite;
+        }
+
+        body.dark-mode::before {
+            background-image: 
+                linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+                linear-gradient(45deg, rgba(5, 150, 105, 0.03) 0%, transparent 50%);
+        }
+
+        body.dark-mode::after {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect x="80" y="50" width="100" height="200" fill="%23ef4444" opacity="0.2" rx="8"/><rect x="220" y="180" width="100" height="70" fill="%2310b981" opacity="0.2" rx="8"/><text x="130" y="270" font-family="Arial" font-size="14" fill="%239ca3af" opacity="0.4" text-anchor="middle">Vehicle</text><text x="270" y="270" font-family="Arial" font-size="14" fill="%239ca3af" opacity="0.4" text-anchor="middle">Green</text><line x1="60" y1="250" x2="360" y2="250" stroke="%239ca3af" opacity="0.3" stroke-width="2"/><line x1="60" y1="50" x2="60" y2="250" stroke="%239ca3af" opacity="0.3" stroke-width="2"/></svg>') no-repeat;
+            background-size: contain;
+            opacity: 0.3;
+        }
+
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        @keyframes floatChart {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dark-mode-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 100px 20px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+            border-radius: 30px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInDown 1s;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 900px;
+            margin: 0 auto;
+            opacity: 0.85;
+            animation: fadeInUp 1s;
+            line-height: 1.8;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: white;
+            padding: 70px 50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.15);
+            margin: 40px 0;
+            animation: fadeIn 1s;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-green), var(--dark-green));
+        }
+
+        body.dark-mode .calculator-section {
+            background: #2a2a2a;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .calculator-section h2 {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.8rem;
+            margin-bottom: 50px;
+            font-weight: 700;
+        }
+
+        .calculator-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            font-size: 1.05rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+            background: #f9fafb;
+        }
+
+        body.dark-mode .form-group select,
+        body.dark-mode .form-group input {
+            background: #3a3a3a;
+            color: white;
+            border-color: #4a4a4a;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+            background: white;
+        }
+
+        body.dark-mode .form-group select:focus,
+        body.dark-mode .form-group input:focus {
+            background: #3a3a3a;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .calculate-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.45);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Result Display */
+        .result-container {
+            margin-top: 50px;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.08));
+            border-radius: 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+            border: 2px solid rgba(16, 185, 129, 0.2);
+        }
+
+        body.dark-mode .result-container {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .result-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-container h3 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        body.dark-mode .result-container h3 {
+            color: var(--primary-green);
+        }
+
+        .emission-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin: 20px 0;
+        }
+
+        .motivation {
+            font-size: 1.1rem;
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        body.dark-mode .motivation {
+            background: #3a3a3a;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            margin-top: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.1);
+        }
+
+        body.dark-mode .chart-container {
+            background: #3a3a3a;
+        }
+
+        #emissionChart {
+            max-width: 100%;
+            max-height: 300px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .progress-bar {
+            background: #4a4a4a;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-green), var(--dark-green));
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Benefits Section */
+        .benefits-section {
+            padding: 60px 0;
+        }
+
+        .benefits-section h2 {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.8rem;
+            margin-bottom: 50px;
+            font-weight: 700;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .benefit-card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);
+            transition: all 0.4s;
+            text-align: center;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        body.dark-mode .benefit-card {
+            background: #2a2a2a;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.2);
+            border-color: var(--primary-green);
+        }
+
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .benefit-card h3 {
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            padding: 60px 0;
+        }
+
+        .comparison-section h2 {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.8rem;
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        body.dark-mode .comparison-table {
+            background: #2a2a2a;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+        }
+
+        th, td {
+            padding: 20px;
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.dark-mode tbody tr {
+            border-bottom: 1px solid #4a4a4a;
+        }
+
+        tbody tr:hover {
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        body.dark-mode tbody tr:hover {
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .calculator-section {
+                padding: 40px 20px;
+            }
+
+            .calculator-section h2,
+            .benefits-section h2,
+            .comparison-section h2 {
+                font-size: 2rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    🌱 Green Transport Dashboard
+                </div>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+                    🌙 Dark Mode
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>🌍 Fight Climate Change with Smart Transport Choices</h1>
+                <p>Transportation accounts for nearly 24% of global CO₂ emissions. Every journey matters. By choosing sustainable transport options like electric vehicles, public transport, or bicycles, we can significantly reduce our carbon footprint and create a healthier planet for future generations.</p>
+            </div>
+        </section>
+
+        <!-- Calculator Section -->
+        <section class="calculator-section">
+            <h2>🧮 CO₂ Emissions Calculator</h2>
+            <form class="calculator-form" onsubmit="calculateEmissions(event)">
+                <div class="form-group">
+                    <label for="vehicle">Select Your Vehicle Type:</label>
+                    <select id="vehicle" required aria-label="Vehicle type">
+                        <option value="">-- Choose a vehicle --</option>
+                        <option value="bike">🏍️ Bike (Motorcycle)</option>
+                        <option value="car">🚗 Car (Petrol)</option>
+                        <option value="truck">🚚 Truck</option>
+                        <option value="bus">🚌 Bus (per person)</option>
+                        <option value="ev">⚡ Electric Vehicle</option>
+                        <option value="bicycle">🚴 Bicycle</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="distance">Enter Distance (in kilometers):</label>
+                    <input type="number" id="distance" min="0" step="0.1" required placeholder="e.g., 25" aria-label="Distance in kilometers">
+                </div>
+
+                <button type="submit" class="calculate-btn">Calculate Emissions 🚀</button>
+            </form>
+
+            <div class="result-container" id="resultContainer">
+                <h3>Your Carbon Footprint</h3>
+                <div class="emission-value" id="emissionValue">0 kg CO₂</div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Impact Level:</span>
+                        <span id="impactLevel">Low</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="motivation" id="motivation"></div>
+
+                <!-- Comparison Chart -->
+                <div class="chart-container" id="chartContainer">
+                    <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 1.5rem;">📊 Your Impact vs All Vehicles</h3>
+                    <canvas id="emissionChart"></canvas>
+                    <p style="margin-top: 20px; font-size: 0.95rem; opacity: 0.8;">This chart shows your CO₂ emissions compared to all vehicle types for the same distance.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits-section">
+            <h2>🌟 Benefits of Green Transport</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🌬️</div>
+                    <h3>Reduced Air Pollution</h3>
+                    <p>Green transport options significantly reduce harmful emissions, improving air quality and public health in urban areas.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💚</div>
+                    <h3>Improved Health</h3>
+                    <p>Active transport like cycling and walking promotes physical fitness and mental well-being while reducing pollution-related diseases.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">⚡</div>
+                    <h3>Energy Efficiency</h3>
+                    <p>Electric and public transport systems are more energy-efficient, reducing our dependence on fossil fuels and lowering costs.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🌡️</div>
+                    <h3>Climate Action</h3>
+                    <p>Sustainable transport is crucial in fighting climate change by reducing greenhouse gas emissions and global warming.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💰</div>
+                    <h3>Cost Savings</h3>
+                    <p>Public transport and electric vehicles offer significant long-term savings on fuel, maintenance, and healthcare costs.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🏙️</div>
+                    <h3>Better Cities</h3>
+                    <p>Sustainable transport reduces traffic congestion, noise pollution, and makes cities more livable and enjoyable.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Table -->
+        <section class="comparison-section">
+            <h2>📊 Vehicle CO₂ Emissions Comparison</h2>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vehicle Type</th>
+                            <th>CO₂ Emissions (kg/km)</th>
+                            <th>Impact Level</th>
+                            <th>Recommendation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🚴 Bicycle</td>
+                            <td>0.00</td>
+                            <td style="color: var(--primary-green); font-weight: 600;">Excellent</td>
+                            <td>Best choice for short distances</td>
+                        </tr>
+                        <tr>
+                            <td>⚡ Electric Vehicle</td>
+                            <td>0.01</td>
+                            <td style="color: var(--primary-green); font-weight: 600;">Excellent</td>
+                            <td>Ideal for daily commutes</td>
+                        </tr>
+                        <tr>
+                            <td>🚌 Bus (per person)</td>
+                            <td>0.03</td>
+                            <td style="color: #3b82f6; font-weight: 600;">Good</td>
+                            <td>Great for urban travel</td>
+                        </tr>
+                        <tr>
+                            <td>🏍️ Bike (Motorcycle)</td>
+                            <td>0.08</td>
+                            <td style="color: #f59e0b; font-weight: 600;">Moderate</td>
+                            <td>Better than cars</td>
+                        </tr>
+                        <tr>
+                            <td>🚗 Car (Petrol)</td>
+                            <td>0.12</td>
+                            <td style="color: #ef4444; font-weight: 600;">High</td>
+                            <td>Consider carpooling</td>
+                        </tr>
+                        <tr>
+                            <td>🚚 Truck</td>
+                            <td>0.20</td>
+                            <td style="color: #dc2626; font-weight: 600;">Very High</td>
+                            <td>Use only when necessary</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p style="font-size: 1.3rem; margin-bottom: 15px; font-weight: 600;">🌱 Green Transport Dashboard</p>
+            <p style="font-size: 1.1rem; margin-bottom: 5px;">Department of Information Technology</p>
+            <p style="font-size: 0.95rem; opacity: 0.9; margin-top: 10px;">Building a sustainable future through technology</p>
+            <div class="social-links">
+                <a href="#" aria-label="Contact via Email">📧 Email</a>
+                <a href="#" aria-label="Visit our website">🌐 Website</a>
+                <a href="#" aria-label="Follow on social media">📱 Social</a>
+            </div>
+            <p style="margin-top: 25px; font-size: 0.9rem; opacity: 0.85;">© 2024 Green Transport Initiative. Making the world greener, one journey at a time.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // CO₂ emission values (kg per km)
+        const emissionValues = {
+            bike: 0.08,
+            car: 0.12,
+            truck: 0.20,
+            bus: 0.03,
+            ev: 0.01,
+            bicycle: 0
+        };
+
+        const vehicleNames = {
+            bike: '🏍️ Bike',
+            car: '🚗 Car',
+            truck: '🚚 Truck',
+            bus: '🚌 Bus',
+            ev: '⚡ Electric Vehicle',
+            bicycle: '🚴 Bicycle'
+        };
+
+        let emissionChart = null;
+
+        // Load saved inputs from memory
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedVehicle = sessionStorage.getItem('lastVehicle');
+            const savedDistance = sessionStorage.getItem('lastDistance');
+            
+            if (savedVehicle) document.getElementById('vehicle').value = savedVehicle;
+            if (savedDistance) document.getElementById('distance').value = savedDistance;
+        });
+
+        function calculateEmissions(event) {
+            event.preventDefault();
+            
+            const vehicle = document.getElementById('vehicle').value;
+            const distance = parseFloat(document.getElementById('distance').value);
+            
+            // Save inputs to memory
+            sessionStorage.setItem('lastVehicle', vehicle);
+            sessionStorage.setItem('lastDistance', distance);
+            
+            const emissionRate = emissionValues[vehicle];
+            const totalEmission = (emissionRate * distance).toFixed(2);
+            
+            // Calculate all vehicle emissions for comparison
+            const allEmissions = {};
+            const emissionPercentages = {};
+            let maxEmission = 0;
+            
+            for (let v in emissionValues) {
+                allEmissions[v] = (emissionValues[v] * distance).toFixed(2);
+                if (parseFloat(allEmissions[v]) > maxEmission) {
+                    maxEmission = parseFloat(allEmissions[v]);
+                }
+            }
+            
+            // Calculate percentage impact (compared to worst option)
+            for (let v in allEmissions) {
+                if (maxEmission > 0) {
+                    emissionPercentages[v] = ((parseFloat(allEmissions[v]) / maxEmission) * 100).toFixed(1);
+                } else {
+                    emissionPercentages[v] = 0;
+                }
+            }
+            
+            // Display result
+            const resultContainer = document.getElementById('resultContainer');
+            const emissionValue = document.getElementById('emissionValue');
+            const motivation = document.getElementById('motivation');
+            const progressFill = document.getElementById('progressFill');
+            const impactLevel = document.getElementById('impactLevel');
+            const chartContainer = document.getElementById('chartContainer');
+            
+            // Show result container
+            resultContainer.classList.add('show');
+            
+            // Update emission value
+            if (vehicle === 'bicycle') {
+                emissionValue.textContent = '0 kg CO₂';
+                motivation.innerHTML = '🎉 <strong>Great choice!</strong> Zero emissions! Bicycles are the most eco-friendly transport option. You\'re actively contributing to a cleaner, healthier planet while staying fit!';
+                progressFill.style.width = '0%';
+                progressFill.style.background = 'linear-gradient(90deg, var(--primary-green), var(--dark-green))';
+                impactLevel.textContent = 'Zero Impact';
+            } else if (vehicle === 'ev') {
+                emissionValue.textContent = `${totalEmission} kg CO₂`;
+                motivation.innerHTML = '⚡ <strong>Excellent choice!</strong> Electric vehicles produce minimal emissions. By choosing EVs, you\'re supporting clean energy and reducing dependence on fossil fuels. Keep it up!';
+                progressFill.style.width = '5%';
+                progressFill.style.background = 'linear-gradient(90deg, var(--primary-green), var(--dark-green))';
+                impactLevel.textContent = 'Very Low';
+            } else {
+                emissionValue.textContent = `${totalEmission} kg CO₂`;
+                
+                // Calculate progress and impact
+                const maxEmission = 100; // Reference point for 100% (very high)
+                const percentage = Math.min((totalEmission / maxEmission) * 100, 100);
+                progressFill.style.width = `${percentage}%`;
+                
+                // Set color and message based on impact
+                if (totalEmission <= 5) {
+                    progressFill.style.background = 'linear-gradient(90deg, var(--primary-green), var(--dark-green))';
+                    impactLevel.textContent = 'Low';
+                    motivation.innerHTML = '👍 <strong>Good job!</strong> Your emission level is relatively low. Consider switching to electric vehicles or public transport for even better results. Every small change makes a big difference in fighting climate change!';
+                } else if (totalEmission <= 15) {
+                    progressFill.style.background = 'linear-gradient(90deg, #3b82f6, #2563eb)';
+                    impactLevel.textContent = 'Moderate';
+                    motivation.innerHTML = '💡 <strong>You can do better!</strong> Switching to public transport like buses or trains can reduce your carbon footprint by up to 70%. Consider carpooling or using electric vehicles for your daily commute.';
+                } else if (totalEmission <= 30) {
+                    progressFill.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+                    impactLevel.textContent = 'High';
+                    motivation.innerHTML = '⚠️ <strong>Time to reconsider!</strong> Your emissions are high. Public transport, carpooling, or electric vehicles can significantly reduce your impact. Together, we can make a real difference in combating climate change.';
+                } else {
+                    progressFill.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+                    impactLevel.textContent = 'Very High';
+                    motivation.innerHTML = '🚨 <strong>Action needed!</strong> Your carbon footprint is very high. Please consider sustainable alternatives like electric vehicles, public transport, or combining trips. Small changes in daily habits can lead to massive environmental benefits!';
+                }
+            }
+            
+            // Create comparison chart
+            createComparisonChart(vehicle, allEmissions, emissionPercentages, distance);
+            
+            // Scroll to result
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function createComparisonChart(selectedVehicle, allEmissions, percentages, distance) {
+            const ctx = document.getElementById('emissionChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (emissionChart) {
+                emissionChart.destroy();
+            }
+            
+            // Prepare data
+            const labels = [];
+            const data = [];
+            const backgroundColors = [];
+            const borderColors = [];
+            
+            for (let v in allEmissions) {
+                labels.push(vehicleNames[v]);
+                data.push(parseFloat(allEmissions[v]));
+                
+                // Enhanced color scheme
+                if (v === selectedVehicle) {
+                    backgroundColors.push('rgba(16, 185, 129, 0.85)');
+                    borderColors.push('rgba(16, 185, 129, 1)');
+                } else if (v === 'bicycle') {
+                    backgroundColors.push('rgba(34, 197, 94, 0.6)');
+                    borderColors.push('rgba(34, 197, 94, 0.9)');
+                } else if (v === 'ev') {
+                    backgroundColors.push('rgba(59, 130, 246, 0.6)');
+                    borderColors.push('rgba(59, 130, 246, 0.9)');
+                } else if (v === 'bus') {
+                    backgroundColors.push('rgba(168, 85, 247, 0.6)');
+                    borderColors.push('rgba(168, 85, 247, 0.9)');
+                } else if (v === 'bike') {
+                    backgroundColors.push('rgba(251, 146, 60, 0.6)');
+                    borderColors.push('rgba(251, 146, 60, 0.9)');
+                } else if (v === 'car') {
+                    backgroundColors.push('rgba(239, 68, 68, 0.6)');
+                    borderColors.push('rgba(239, 68, 68, 0.9)');
+                } else {
+                    backgroundColors.push('rgba(220, 38, 38, 0.6)');
+                    borderColors.push('rgba(220, 38, 38, 0.9)');
+                }
+            }
+            
+            // Create chart
+            emissionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `CO₂ Emissions (kg) for ${distance} km`,
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2.5,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Poppins',
+                                    weight: '500'
+                                },
+                                color: document.body.classList.contains('dark-mode') ? '#ffffff' : '#1f2937',
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const vehicleKey = Object.keys(vehicleNames)[context.dataIndex];
+                                    const emission = context.parsed.y;
+                                    const percent = percentages[vehicleKey];
+                                    return [
+                                        `Emission: ${emission} kg CO₂`,
+                                        `Impact: ${percent}% of worst option`
+                                    ];
+                                }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                            titleFont: {
+                                size: 15,
+                                family: 'Poppins',
+                                weight: '600'
+                            },
+                            bodyFont: {
+                                size: 13,
+                                family: 'Poppins'
+                            },
+                            padding: 14,
+                            borderColor: 'rgba(16, 185, 129, 0.6)',
+                            borderWidth: 2,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'CO₂ Emissions (kg)',
+                                font: {
+                                    size: 14,
+                                    family: 'Poppins',
+                                    weight: '600'
+                                },
+                                color: document.body.classList.contains('dark-mode') ? '#ffffff' : '#1f2937'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Poppins'
+                                },
+                                color: document.body.classList.contains('dark-mode') ? '#ffffff' : '#1f2937'
+                            },
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    family: 'Poppins',
+                                    size: 12
+                                },
+                                color: document.body.classList.contains('dark-mode') ? '#ffffff' : '#1f2937'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const btn = document.querySelector('.dark-mode-toggle');
+            if (document.body.classList.contains('dark-mode')) {
+                btn.textContent = '☀️ Light Mode';
+            } else {
+                btn.textContent = '🌙 Dark Mode';
+            }
+            
+            // Recreate chart with updated colors if it exists
+            if (emissionChart) {
+                const vehicle = document.getElementById('vehicle').value;
+                const distance = parseFloat(document.getElementById('distance').value);
+                if (vehicle && distance) {
+                    const allEmissions = {};
+                    const emissionPercentages = {};
+                    let maxEmission = 0;
+                    
+                    for (let v in emissionValues) {
+                        allEmissions[v] = (emissionValues[v] * distance).toFixed(2);
+                        if (parseFloat(allEmissions[v]) > maxEmission) {
+                            maxEmission = parseFloat(allEmissions[v]);
+                        }
+                    }
+                    
+                    for (let v in allEmissions) {
+                        if (maxEmission > 0) {
+                            emissionPercentages[v] = ((parseFloat(allEmissions[v]) / maxEmission) * 100).toFixed(1);
+                        } else {
+                            emissionPercentages[v] = 0;
+                        }
+                    }
+                    
+                    createComparisonChart(vehicle, allEmissions, emissionPercentages, distance);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
